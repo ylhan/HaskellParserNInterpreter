@@ -15,6 +15,7 @@ parseFile filename = do
     let ans = runParser mainParser inp
     return ans
 
+-- Used lesson4 from the lecture notes as a base
 mainParser :: Parser Expr
 mainParser = whitespaces *> expr <* eof
   where
@@ -31,7 +32,6 @@ mainParser = whitespaces *> expr <* eof
         char '\\'
         whitespaces
         param <- var
-        -- For some reason keyword doesn't work with ->
         char '-'
         char '>'
         whitespaces
@@ -49,7 +49,6 @@ mainParser = whitespaces *> expr <* eof
         e <- expr
         char ';' *> whitespaces
         pure (v, e)
-    -- TODO: CHECK IF 0 OR 1
     infix' = chainl2 arith (string "==" *> whitespaces *> pure (Prim2 Eq))
          <|> chainl2 arith (char '<' *> whitespaces *> pure (Prim2 Lt))
          <|> arith
@@ -58,14 +57,7 @@ mainParser = whitespaces *> expr <* eof
     addend = chainl1 factor ((char '*' *> whitespaces *> pure (Prim2 Mul))
          <|> (char '/' *> whitespaces *> pure (Prim2 Div))
          <|> (char '%' *> whitespaces *> pure (Prim2 Mod)))
-    -- TODO: What happens if only 1 (Not two or more?) still App?
-    factor = chainl1 factors (pure (App)) <|> atom
-    factors = do
-        var1 <- atom
-        var2 <- atom
-        pure (App var1 var2)
-        <|> atom
-    -- TODO: handle minus sign some how
+    factor =  chainl1 atom (whitespaces *> pure (App)) <|> atom
     atom = fmap Num integer
          <|> keyword "True" *> pure (Bln True)
          <|> keyword "False" *> pure (Bln False)
@@ -89,6 +81,7 @@ chainl2 arg op = do
         y <- arg
         return (f x y)
 
+-- Used lecture notes as a base for these function
 mainInterp :: Expr -> Either Error Value
 mainInterp = interp Map.empty
 
@@ -166,3 +159,4 @@ interp env (App f e) = do
         let bEnv = Map.insert v eVal fEnv
         interp bEnv body
       _ -> Left TypeError
+

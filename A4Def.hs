@@ -22,4 +22,4 @@ data Value = VN Integer
            | VClosure (Map String Value) String Expr
     deriving (Eq, Show)
 
-data Error = VarNotFound | TypeError | DivByZero deriving (Eq, Show)
+data Error = VarNotFound | TypeError | DivByZero | MyError deriving (Eq, Show)
