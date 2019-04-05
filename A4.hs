@@ -53,11 +53,11 @@ mainParser = whitespaces *> expr <* eof
     infix' = chainl2 arith (string "==" *> whitespaces *> pure (Prim2 Eq))
          <|> chainl2 arith (char '<' *> whitespaces *> pure (Prim2 Lt))
          <|> arith
-    arith = chainl1 addend (char '+' *> whitespaces *> pure (Prim2 Plus))
-         <|> chainl1 addend (char '-' *> whitespaces *> pure (Prim2 Minus))
-    addend = chainl1 factor (char '*' *> whitespaces *> pure (Prim2 Mul))
-         <|> chainl1 factor (char '/' *> whitespaces *> pure (Prim2 Div))
-         <|> chainl1 factor (char '%' *> whitespaces *> pure (Prim2 Mod))
+    arith =  chainl1 addend ((char '-' *> whitespaces *> pure (Prim2 Minus))
+         <|> (char '+' *> whitespaces *> pure (Prim2 Plus)))
+    addend = chainl1 factor ((char '*' *> whitespaces *> pure (Prim2 Mul))
+         <|> (char '/' *> whitespaces *> pure (Prim2 Div))
+         <|> (char '%' *> whitespaces *> pure (Prim2 Mod)))
     -- TODO: What happens if only 1 (Not two or more?) still App?
     factor = chainl1 factors (pure (App)) <|> atom
     factors = do
